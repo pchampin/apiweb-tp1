@@ -77,7 +77,7 @@ public class OwmCurrentWeather {
     private String selector;
     private CloseableHttpClient httpClient;
 
-    public OwmCurrentWeather(String selector) throws IOException {
+    private OwmCurrentWeather(String selector) throws IOException {
         this.selector = selector;
         httpClient = HttpClients.createDefault();
         refresh();
@@ -97,7 +97,7 @@ public class OwmCurrentWeather {
 
         String url = "http://api.openweathermap.org/data/2.5/weather?" + selector
                 + "&units=metric&lang=fr&mode=xml";
-        System.err.println(url);
+        //System.err.println(url);
         HttpGet hget = new HttpGet(url);
         CloseableHttpResponse resp = httpClient.execute(hget);
         DOMParser p = new DOMParser();
