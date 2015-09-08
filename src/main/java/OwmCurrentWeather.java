@@ -1,4 +1,6 @@
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -99,6 +101,13 @@ public class OwmCurrentWeather {
                 + "&units=metric&lang=fr&mode=xml";
         //System.err.println(url);
         HttpGet hget = new HttpGet(url);
+        /* pour passer le proxy de Lyon1
+        HttpHost proxy = new HttpHost("proxy.univ-lyon1.fr", 3128, "http");
+        RequestConfig config = RequestConfig.custom()
+                .setProxy(proxy)
+                .build();
+        hget.setConfig(config);
+        */
         CloseableHttpResponse resp = httpClient.execute(hget);
         DOMParser p = new DOMParser();
         try {
