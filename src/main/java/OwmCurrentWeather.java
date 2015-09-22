@@ -69,7 +69,7 @@ public class OwmCurrentWeather {
      * @param countryCode ISO 3166 country code
      * @throws IOException
      */
-    public static OwmCurrentWeather ofGeo(String zipCode, String countryCode) throws IOException {
+    public static OwmCurrentWeather ofZipcode(String zipCode, String countryCode) throws IOException {
         throw new NotImplementedException();
     }
 
