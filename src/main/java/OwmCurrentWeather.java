@@ -1,10 +1,4 @@
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
-import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -13,6 +7,7 @@ import org.xml.sax.SAXException;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
+import java.net.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,6 +19,8 @@ import java.time.ZonedDateTime;
  * Created by pchampin on 21/08/15.
  */
 public class OwmCurrentWeather {
+
+    public static String APPID = "YOUR_APPID"; // http://home.openweathermap.org/users/sign_in
 
     /**
      * Create weather report for the given city.
@@ -76,12 +73,14 @@ public class OwmCurrentWeather {
 
 
 
-    private String selector;
-    private CloseableHttpClient httpClient;
+    private URL url;
 
     private OwmCurrentWeather(String selector) throws IOException {
-        this.selector = selector;
-        httpClient = HttpClients.createDefault();
+        this.url = new URL(
+                "http://api.openweathermap.org/data/2.5/weather?"
+                + selector
+                + "&units=metric&lang=fr&mode=xml&APPID=" + APPID);
+        //System.err.println(this.url);
         refresh();
     }
 
@@ -97,21 +96,19 @@ public class OwmCurrentWeather {
      */
     public void refresh() throws IOException {
 
-        String url = "http://api.openweathermap.org/data/2.5/weather?" + selector
-                + "&units=metric&lang=fr&mode=xml";
-        //System.err.println(url);
-        HttpGet hget = new HttpGet(url);
-        /* pour passer le proxy de Lyon1
-        HttpHost proxy = new HttpHost("proxy.univ-lyon1.fr", 3128, "http");
-        RequestConfig config = RequestConfig.custom()
-                .setProxy(proxy)
-                .build();
-        hget.setConfig(config);
-        */
-        CloseableHttpResponse resp = httpClient.execute(hget);
+        Proxy proxy = Proxy.NO_PROXY;
+        // pour passer le proxy de Lyon1:
+        //proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.univ-lyon1.fr", 3128));
+        //
+        HttpURLConnection cx = (HttpURLConnection) url.openConnection(proxy);
+        cx.setRequestMethod("GET");
+        cx.setReadTimeout(5 * 1000); // 5s
+        cx.connect();
+
         DOMParser p = new DOMParser();
+        InputSource src = new InputSource(cx.getInputStream());
         try {
-            p.parse(new InputSource(resp.getEntity().getContent()));
+            p.parse(src);
         }
         catch (SAXException ex) {
             throw new RuntimeException(ex);
